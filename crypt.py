@@ -71,21 +71,31 @@ def fernet_decode_file(keyfile, ciphertext_file):
     return 0;
 
 def rsa_generate_keypair(private_path, public_path):
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048);
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048
+    );
+
     public_key = private_key.public_key();
 
-    with open(private_path, 'wb') as priv_file:
-        priv_file.write(private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        ));
+    # Guardar clave privada (PEM tradicional)
+    with open(private_path, "wb") as priv_file:
+        priv_file.write(
+            private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+        );
 
-    with open(public_path, 'wb') as pub_file:
-        pub_file.write(public_key.public_bytes(
-            encoding=serialization.Encoding.OpenSSH,
-            format=serialization.PublicFormat.OpenSSH
-        ));
+    # Guardar clave pública en formato PEM
+    with open(public_path, "wb") as pub_file:
+        pub_file.write(
+            public_key.public_bytes(
+                encoding=serialization.Encoding.OpenSSH,
+                format=serialization.PublicFormat.OpenSSH
+            )
+        );
 
     print("RSA key pair (OpenSSH-compatible) generated.");
     return 0;
@@ -107,11 +117,11 @@ def rsa_encode_text_from_private(private_path, plaintext):
                 label=None
             )
         );
-        print("Using RSA private key (deriving public key).\nEncrypted:");
+        #print("Using RSA private key (deriving public key).\nEncrypted:");
         print(base64.b64encode(ciphertext).decode());
         return 0;
     except (ValueError, UnsupportedAlgorithm):
-        print("Using RSA public key directly.\nEncrypted:");
+        #print("Using RSA public key directly.\nEncrypted:");
         return rsa_encode_text(private_path, plaintext);
 
 def rsa_encode_text(public_path, plaintext):
@@ -131,12 +141,16 @@ def rsa_encode_text(public_path, plaintext):
 
 def rsa_decode_file_from_public(public_path, ciphertext_file):
     print("Error: Cannot decode with a public key. Please use the corresponding private key.");
+    
     return 1;
 
 def rsa_decode_file(private_path, ciphertext_file):
     try:
         with open(private_path, 'rb') as f:
-            private_key = serialization.load_pem_private_key(f.read(), password=None);
+            private_bytes = f.read()
+            if not private_bytes.startswith(b"-----BEGIN RSA PRIVATE KEY-----"):
+                raise ValueError("Not a valid PEM key")
+            private_key = serialization.load_pem_private_key(private_bytes, password=None);
 
         with open(ciphertext_file, 'rb') as f:
             ciphertext = base64.b64decode(f.read().strip());
@@ -149,11 +163,12 @@ def rsa_decode_file(private_path, ciphertext_file):
                 label=None
             )
         );
-        print("Using RSA private key.\nDecrypted:");
+        #print("Using RSA private key.\nDecrypted:");
         print(plaintext.decode());
         return 0;
-    except (ValueError, UnsupportedAlgorithm):
+    except (ValueError, UnsupportedAlgorithm) as e:
         print("Error: Provided key is not a valid RSA private key or not in PEM format.");
+        print("Details:", e);
         return 1;
 
 def main():
@@ -186,8 +201,13 @@ def main():
             return rsa_encode_text(args.publicKey, args.encode);
         elif args.key and args.encode:
             return rsa_encode_text_from_private(args.key, args.encode);
+        elif args.privateKey and args.decode:
+            return rsa_decode_file(args.privateKey, args.decode);
         elif args.key and args.decode:
-            return rsa_decode_file(args.key, args.decode);
+            if args.key.endswith(".pub"):
+                return rsa_decode_file_from_public(args.key, args.decode);
+            else:
+                return rsa_decode_file(args.key, args.decode);
         elif args.publicKey and args.decode:
             return rsa_decode_file_from_public(args.publicKey, args.decode);
         elif args.privateKey and args.decode:
