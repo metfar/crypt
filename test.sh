@@ -19,7 +19,7 @@ echo "🔐 RSA test..."
 python3 crypt.py --algo RSA --generateKeyPair test_id_rsa test_id_rsa.pub
 f=$((1+f)); if [ $? -gt 0 ]; then echo "Error $f"; exit $f; fi;
 
-python3 crypt.py --algo RSA --key test_id_rsa.pub --encode "mensaje cifrado" > test_encoded_rsa.txt
+python3 crypt.py --algo RSA --key test_id_rsa.pub --encode "encrypted message" > test_encoded_rsa.txt
 f=$((1+f)); if [ $? -gt 0 ]; then echo "Error $f"; exit $f; fi;
 
 python3 crypt.py --algo RSA --key test_id_rsa --decode test_encoded_rsa.txt > test_decoded_rsa.txt
