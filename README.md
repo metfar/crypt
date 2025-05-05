@@ -1,18 +1,18 @@
-# 🔐 crypt.py — Herramienta de cifrado Fernet y RSA
+# 🔐 crypt.py — Fernet and RSA Encryption Tool
 
-Este script en Python permite cifrar y descifrar textos mediante dos algoritmos:
+This Python script allows you to encrypt and decrypt text using two algorithms:
 
-- **Fernet**: cifrado simétrico, ideal para datos temporales.
-- **RSA**: cifrado asimétrico, compatible con claves OpenSSH.
+- **Fernet**: Symmetric encryption, ideal for temporary data.
+- **RSA**: Asymmetric encryption, compatible with OpenSSH keys.
 
 ---
 
-## ⚙️ Requisitos
+## ⚙️ Requirements
 
 - Python 3.7+
-- Biblioteca `cryptography`
+- `cryptography` library
 
-Instalación:
+Installation:
 
 ```bash
 pip install cryptography
@@ -20,35 +20,35 @@ pip install cryptography
 
 ---
 
-## 📌 Uso general
+## 📌 General Use
 
 ```bash
-python crypt.py [--algo Fernet|RSA] [opciones]
+python crypt.py [--something Fernet|RSA] [options]
 ```
 
 ---
 
-## 🔐 Fernet (simétrico)
+## 🔐 Fernet (symmetric)
 
-### Generar clave con timestamp:
+### Generate key with timestamp:
 
 ```bash
 python crypt.py --generateKey > key.txt
 ```
 
-### Generar clave con timestamp personalizado:
+### Generate key with custom timestamp:
 
 ```bash
 python crypt.py --generateKeyWithTime "2025-05-05T08:06:16.049001" > key.txt
 ```
 
-### Cifrar texto:
+### Encrypt text:
 
 ```bash
-python crypt.py --key key.txt --encode "Texto secreto" > encoded.txt
+python crypt.py --key key.txt --encode "Secret text" > encoded.txt
 ```
 
-### Descifrar texto:
+### Decrypt text:
 
 ```bash
 python crypt.py --key key.txt --decode encoded.txt
@@ -56,57 +56,57 @@ python crypt.py --key key.txt --decode encoded.txt
 
 ---
 
-## 🔐 RSA (asimétrico)
+## 🔐 RSA (asymmetric)
 
-### Generar par de claves RSA (privada PEM + pública OpenSSH):
+### Generate RSA key pair (PEM private + OpenSSH public):
 
 ```bash
 python crypt.py --algo RSA --generateKeyPair id_rsa id_rsa.pub
 ```
 
-### Cifrar texto con clave pública o privada:
+### Encrypt text with a public or private key:
 
 ```bash
-# Con clave pública
-python crypt.py --algo RSA --key id_rsa.pub --encode "Mensaje secreto"
+# With a public key
+python crypt.py --algo RSA --key id_rsa.pub --encode "Secret message"
 
-# O con clave privada (extrae clave pública internamente)
-python crypt.py --algo RSA --key id_rsa --encode "Mensaje secreto"
+# Or with a private key (extract public key internally)
+python crypt.py --algo RSA --key id_rsa --encode "Secret Message"
 ```
 
-### Descifrar con clave privada:
+### Decrypt with private key:
 
 ```bash
 python crypt.py --algo RSA --key id_rsa --decode encoded.txt
 ```
 
-### ❌ Intentar descifrar con clave pública (no permitido):
+### ❌ Attempt to decrypt with public key (not allowed):
 
 ```bash
 python crypt.py --algo RSA --key id_rsa.pub --decode encoded.txt
 ```
 
-Resultado:
+Result:
 ```
 Error: Cannot decode with a public key. Please use the corresponding private key.
 ```
 
 ---
 
-## 🧪 Formato de claves RSA
+## 🧪 RSA Key Format
 
-- `id_rsa`: clave privada en formato PEM
-- `id_rsa.pub`: clave pública en formato `ssh-rsa ...`, compatible con OpenSSH (`~/.ssh/authorized_keys`)
-
----
-
-## 🛡️ Notas de seguridad
-
-- No compartas tu clave privada (`id_rsa`)
-- El cifrado RSA soporta bloques limitados de texto. Este script funciona bien para textos breves. Para archivos o textos largos, usá una combinación híbrida (RSA+AES).
+- `id_rsa`: Private key in PEM format
+- `id_rsa.pub`: Public key in `ssh-rsa ...` format, compatible with OpenSSH (`~/.ssh/authorized_keys`)
 
 ---
 
-## 🧑‍💻 Autor
+## 🛡️ Security Notes
 
-Script desarrollado para uso educativo, adaptable a automatizaciones de cifrado simples en consola.
+- Do not share your private key (`id_rsa`)
+- RSA encryption supports limited blocks of text. This script works well for short texts. For files or long texts, use a hybrid combination (RSA+AES).
+
+---
+
+## 📜 License
+
+MIT © William Martinez Bas
